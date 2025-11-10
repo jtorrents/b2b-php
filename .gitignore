@@ -16,7 +16,12 @@ Thumbs.db
 # Testing
 /phpunit.xml
 /.phpunit.result.cache
+/coverage/
+coverage.xml
 
 # Local configuration
 .env
 .env.local
+
+# Neovim
+*.swn

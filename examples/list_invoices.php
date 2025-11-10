@@ -1,0 +1,52 @@
+<?php
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use B2BRouter\B2BRouterClient;
+
+$client = new B2BRouterClient($_ENV['B2B_API_KEY'] ?? 'your-api-key');
+$accountId = $_ENV['B2B_ACCOUNT_ID'] ?? 'your-account-id';
+
+try {
+    echo "Fetching invoices from the last 30 days...\n\n";
+
+    $invoices = $client->invoices->all($accountId, [
+        'limit' => 25,
+        'offset' => 0,
+        'date_from' => date('Y-m-d', strtotime('-30 days')),
+        'date_to' => date('Y-m-d'),
+    ]);
+
+    echo "Found {$invoices->count()} invoices";
+    if ($invoices->getTotal()) {
+        echo " (Total: {$invoices->getTotal()})";
+    }
+    echo "\n\n";
+
+    // Display invoices in a table
+    printf("%-15s %-20s %-12s %-10s %s\n",
+        'ID', 'Number', 'Date', 'Amount', 'Status');
+    echo str_repeat('-', 80) . "\n";
+
+    foreach ($invoices as $invoice) {
+        printf("%-15s %-20s %-12s %-10s %s\n",
+            substr($invoice['id'], 0, 12) . '...',
+            $invoice['number'] ?? 'N/A',
+            $invoice['issue_date'] ?? 'N/A',
+            $invoice['currency'] . ' ' . number_format($invoice['total_amount'] ?? 0, 2),
+            $invoice['status'] ?? 'unknown'
+        );
+    }
+
+    echo "\n";
+
+    // Check for more pages
+    if ($invoices->hasMore()) {
+        echo "Note: More invoices available. Use offset parameter to fetch next page.\n";
+        echo "Example: \$invoices = \$client->invoices->all(\$accountId, ['offset' => 25]);\n";
+    }
+
+} catch (Exception $e) {
+    echo "✗ Error: {$e->getMessage()}\n";
+    exit(1);
+}
