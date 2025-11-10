@@ -105,26 +105,31 @@ class Collection implements \Iterator, \Countable
 
     // Iterator implementation
 
+    #[\ReturnTypeWillChange]
     public function current()
     {
         return $this->data[$this->position];
     }
 
+    #[\ReturnTypeWillChange]
     public function key()
     {
         return $this->position;
     }
 
+    #[\ReturnTypeWillChange]
     public function next()
     {
         ++$this->position;
     }
 
+    #[\ReturnTypeWillChange]
     public function rewind()
     {
         $this->position = 0;
     }
 
+    #[\ReturnTypeWillChange]
     public function valid()
     {
         return isset($this->data[$this->position]);
@@ -132,6 +137,7 @@ class Collection implements \Iterator, \Countable
 
     // Countable implementation
 
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return count($this->data);
