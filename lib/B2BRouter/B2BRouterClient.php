@@ -5,11 +5,15 @@ namespace B2BRouter;
 use B2BRouter\HttpClient\ClientInterface;
 use B2BRouter\HttpClient\CurlClient;
 use B2BRouter\Service\InvoiceService;
+use B2BRouter\Service\TaxReportSettingService;
+use B2BRouter\Service\TaxReportService;
 
 /**
  * Main client for the B2BRouter API.
  *
  * @property InvoiceService $invoices
+ * @property TaxReportSettingService $taxReportSettings
+ * @property TaxReportService $taxReports
  */
 class B2BRouterClient
 {
@@ -159,6 +163,8 @@ class B2BRouterClient
     {
         $services = [
             'invoices' => Service\InvoiceService::class,
+            'taxReportSettings' => Service\TaxReportSettingService::class,
+            'taxReports' => Service\TaxReportService::class,
         ];
 
         if (!isset($services[$name])) {
