@@ -49,11 +49,6 @@ abstract class ApiResource
             'Accept' => 'application/json'
         ];
 
-        // Add idempotency key if provided
-        if (isset($options['idempotency_key'])) {
-            $headers['Idempotency-Key'] = $options['idempotency_key'];
-        }
-
         // Handle query parameters and body
         $body = null;
         if ($method === 'GET' || $method === 'DELETE') {

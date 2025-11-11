@@ -241,17 +241,7 @@ try {
 }
 ```
 
-### 2. Use Idempotency Keys
-
-For create operations:
-
-```php
-$invoice = $client->invoices->create($accountId, $params, [
-    'idempotency_key' => 'invoice_' . $userId . '_' . time()
-]);
-```
-
-### 3. Pagination
+### 2. Pagination
 
 Handle large datasets properly:
 
@@ -273,7 +263,7 @@ do {
 } while ($page->hasMore());
 ```
 
-### 4. Environment-Specific Config
+### 3. Environment-Specific Config
 
 ```php
 $config = [
@@ -291,7 +281,7 @@ $env = getenv('APP_ENV') ?: 'development';
 $client = new B2BRouterClient($config[$env]['api_key'], $config[$env]);
 ```
 
-### 5. Logging Requests (Debug)
+### 4. Logging Requests (Debug)
 
 Wrap HTTP client for debugging:
 

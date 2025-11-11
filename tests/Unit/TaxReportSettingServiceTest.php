@@ -171,25 +171,4 @@ class TaxReportSettingServiceTest extends TestCase
         $this->assertEquals('DELETE', $request['method']);
         $this->assertStringContainsString('/accounts/test-account/tax_report_settings/VERIFACTU', $request['url']);
     }
-
-    public function testCreateTaxReportSettingWithIdempotencyKey()
-    {
-        [$client, $mockHttp] = $this->createTestClient();
-
-        $mockHttp->addResponse($this->mockResponse([
-            'tax_report_setting' => ['code' => 'VERIFACTU']
-        ]));
-
-        $client->taxReportSettings->create('test-account', [
-            'tax_report_setting' => [
-                'code' => 'VERIFACTU',
-                'type' => 'verifactu'
-            ]
-        ], [
-            'idempotency_key' => 'unique-key-123'
-        ]);
-
-        $request = $mockHttp->getLastRequest();
-        $this->assertEquals('unique-key-123', $request['headers']['Idempotency-Key']);
-    }
 }

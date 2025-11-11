@@ -46,7 +46,7 @@ class TaxReportSettingService extends ApiResource
      * @param string $account The account identifier
      * @param array $params Tax report setting data:
      *   - tax_report_setting: (required) Tax report setting object
-     * @param array $options Request options (e.g., idempotency_key)
+     * @param array $options Request options
      * @return array The created tax report setting
      * @throws \B2BRouter\Exception\ApiErrorException
      */
@@ -86,7 +86,7 @@ class TaxReportSettingService extends ApiResource
      * @param string $code The tax authority code
      * @param array $params Update data:
      *   - tax_report_setting: (required) Tax report setting object with fields to update
-     * @param array $options Request options (e.g., idempotency_key)
+     * @param array $options Request options
      * @return array The updated tax report setting
      * @throws \B2BRouter\Exception\ApiErrorException
      */

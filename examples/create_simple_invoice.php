@@ -49,8 +49,6 @@ try {
             'total_amount' => 1210.00,
         ],
         'send_after_import' => false
-    ], [
-        'idempotency_key' => 'invoice_' . uniqid()
     ]);
 
     echo "✓ Invoice created successfully!\n";
