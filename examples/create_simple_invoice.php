@@ -14,39 +14,32 @@ try {
     $invoice = $client->invoices->create($accountId, [
         'invoice' => [
             'number' => 'INV-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
-            'issue_date' => date('Y-m-d'),
+            'date' => date('Y-m-d'),
             'due_date' => date('Y-m-d', strtotime('+30 days')),
             'currency' => 'EUR',
-            'buyer' => [
+            'contact' => [
                 'name' => 'Acme Corporation',
-                'tax_id' => 'ESB12345678',
+                'tin_value' => 'ESB12345678',
                 'country' => 'ES',
-                'address' => [
-                    'street' => 'Calle Mayor 1',
-                    'city' => 'Madrid',
-                    'postal_code' => '28001',
-                    'country' => 'ES',
-                ],
+                'address' => 'Calle Mayor 1',
+                'city' => 'Madrid',
+                'postalcode' => '28001',
                 'email' => 'billing@acme.com',
             ],
-            'seller' => [
-                'name' => 'Your Company SL',
-                'tax_id' => 'ESA87654321',
-                'country' => 'ES',
-            ],
-            'lines' => [
+            'invoice_lines_attributes' => [
                 [
                     'description' => 'Professional Services - January 2025',
                     'quantity' => 1,
-                    'unit_price' => 1000.00,
-                    'amount' => 1000.00,
-                    'tax_rate' => 21.0,
-                    'tax_amount' => 210.00,
+                    'price' => 1000.00,
+                    'taxes_attributes' => [
+                        [
+                            'name' => 'IVA',
+                            'category' => 'S',
+                            'percent' => 21.0,
+                        ]
+                    ]
                 ]
             ],
-            'total_before_tax' => 1000.00,
-            'total_tax' => 210.00,
-            'total_amount' => 1210.00,
         ],
         'send_after_import' => false
     ]);
@@ -54,7 +47,9 @@ try {
     echo "✓ Invoice created successfully!\n";
     echo "  ID: {$invoice['id']}\n";
     echo "  Number: {$invoice['number']}\n";
-    echo "  Total: {$invoice['total_amount']} {$invoice['currency']}\n";
+    echo "  Subtotal: €{$invoice['subtotal']}\n";
+    echo "  Total: €{$invoice['total']} {$invoice['currency']}\n";
+    echo "  State: {$invoice['state']}\n";
 
 } catch (ApiErrorException $e) {
     echo "✗ Error creating invoice:\n";

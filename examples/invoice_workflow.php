@@ -20,28 +20,29 @@ try {
     $invoice = $client->invoices->create($accountId, [
         'invoice' => [
             'number' => 'WORKFLOW-' . date('Ymd-His'),
-            'issue_date' => date('Y-m-d'),
+            'date' => date('Y-m-d'),
             'due_date' => date('Y-m-d', strtotime('+30 days')),
             'currency' => 'EUR',
-            'buyer' => [
+            'contact' => [
                 'name' => 'Demo Customer',
-                'tax_id' => 'ESB11111111',
+                'tin_value' => 'ESB11111111',
                 'country' => 'ES',
                 'email' => 'demo@example.com',
             ],
-            'lines' => [
+            'invoice_lines_attributes' => [
                 [
                     'description' => 'Consulting Services',
                     'quantity' => 1,
-                    'unit_price' => 500.00,
-                    'amount' => 500.00,
-                    'tax_rate' => 21.0,
-                    'tax_amount' => 105.00,
+                    'price' => 500.00,
+                    'taxes_attributes' => [
+                        [
+                            'name' => 'IVA',
+                            'category' => 'S',
+                            'percent' => 21.0,
+                        ]
+                    ]
                 ]
             ],
-            'total_before_tax' => 500.00,
-            'total_tax' => 105.00,
-            'total_amount' => 605.00,
         ]
     ]);
 
@@ -54,8 +55,8 @@ try {
 
     $retrieved = $client->invoices->retrieve($invoiceId);
     echo "✓ Retrieved invoice: {$retrieved['number']}\n";
-    echo "  Status: {$retrieved['status']}\n";
-    echo "  Amount: {$retrieved['total_amount']} {$retrieved['currency']}\n";
+    echo "  State: {$retrieved['state']}\n";
+    echo "  Amount: €{$retrieved['total']} {$retrieved['currency']}\n";
 
     sleep(1);
 
@@ -70,7 +71,7 @@ try {
 
     $updated = $client->invoices->update($invoiceId, [
         'invoice' => [
-            'notes' => 'Validated and ready to send - ' . date('Y-m-d H:i:s'),
+            'extra_info' => 'Validated and ready to send - ' . date('Y-m-d H:i:s'),
         ]
     ]);
     echo "✓ Invoice updated\n";
@@ -80,7 +81,7 @@ try {
     step("5. Mark Invoice as Sent");
 
     $marked = $client->invoices->markAs($invoiceId, [
-        'status' => 'sent'
+        'state' => 'sent'
     ]);
     echo "✓ Invoice marked as sent\n";
 

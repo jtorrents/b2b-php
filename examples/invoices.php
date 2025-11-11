@@ -23,21 +23,26 @@ try {
     $invoice = $client->invoices->create($accountId, [
         'invoice' => [
             'number' => 'INV-2025-001',
-            'issue_date' => '2025-01-15',
+            'date' => '2025-01-15',
             'due_date' => '2025-02-15',
             'currency' => 'EUR',
-            'total_amount' => 1000.00,
-            'buyer' => [
+            'contact' => [
                 'name' => 'Acme Corporation',
-                'tax_id' => 'B12345678',
+                'tin_value' => 'ESB12345678',
                 'country' => 'ES',
             ],
-            'lines' => [
+            'invoice_lines_attributes' => [
                 [
                     'description' => 'Professional Services',
                     'quantity' => 10,
-                    'unit_price' => 100.00,
-                    'amount' => 1000.00,
+                    'price' => 100.00,
+                    'taxes_attributes' => [
+                        [
+                            'name' => 'IVA',
+                            'category' => 'S',
+                            'percent' => 21.0,
+                        ]
+                    ]
                 ]
             ]
         ],
@@ -60,7 +65,7 @@ try {
     echo "3. Updating the invoice...\n";
     $updatedInvoice = $client->invoices->update($invoiceId, [
         'invoice' => [
-            'notes' => 'Payment terms: 30 days net'
+            'extra_info' => 'Payment terms: 30 days net'
         ]
     ]);
     echo "Invoice updated successfully\n\n";
@@ -77,7 +82,7 @@ try {
 
     echo "Found {$invoices->count()} invoices (Total: {$invoices->getTotal()})\n";
     foreach ($invoices as $inv) {
-        echo "  - Invoice {$inv['number']}: {$inv['total_amount']} {$inv['currency']}\n";
+        echo "  - Invoice {$inv['number']}: €{$inv['total']} {$inv['currency']}\n";
     }
 
     if ($invoices->hasMore()) {
@@ -127,7 +132,7 @@ try {
     // ============================================
     echo "8. Marking invoice as sent...\n";
     $markedInvoice = $client->invoices->markAs($invoiceId, [
-        'status' => 'sent'
+        'state' => 'sent'
     ]);
     echo "Invoice marked as sent\n\n";
 
