@@ -340,45 +340,6 @@ if (!empty($invoice['tax_report_ids'])) {
 }
 ```
 
-#### Tax Report Lifecycle
-
-Tax reports are processed asynchronously. The initial state is always `processing`. To monitor the final state:
-
-**Option 1: Webhooks (Recommended)**
-
-Set up a webhook endpoint to receive notifications when tax reports reach a final state:
-
-```php
-// Your webhook handler
-$payload = json_decode(file_get_contents('php://input'), true);
-
-if ($payload['event'] === 'tax_report.state_changed') {
-    $taxReportId = $payload['data']['id'];
-    $state = $payload['data']['state'];
-
-    if (in_array($state, ['registered', 'error', 'registered_with_errors'])) {
-        // Process final state
-        echo "Tax report {$taxReportId} is now {$state}\n";
-    }
-}
-```
-
-**Option 2: Polling**
-
-Periodically check the tax report state:
-
-```php
-do {
-    $taxReport = $client->taxReports->retrieve($taxReportId);
-    $state = $taxReport['state'];
-
-    if (in_array($state, ['registered', 'error', 'registered_with_errors', 'annulled'])) {
-        break;  // Final state reached
-    }
-
-    sleep(5);  // Wait before checking again
-} while (true);
-```
 
 For comprehensive information about Spanish invoicing and Verifactu compliance, see the [Spanish Invoicing Guide](docs/SPANISH_INVOICING.md).
 
@@ -545,6 +506,7 @@ For more information about contributing, setting up your development environment
 - **[Tax Reports Documentation](docs/TAX_REPORTS.md)** - Detailed tax reporting documentation
 - **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Contributing and development setup
 - **[API Reference](https://developer.b2brouter.net/v2025-10-13/reference)** - Complete API documentation
+- [B2Brouter Verifactu Guide](https://developer.b2brouter.net/v2025-10-13/docs/verifactu) - Full B2Brouter Verifactu Guide.
 - **[Developer Portal](https://developer.b2brouter.net)** - Guides and tutorials
 
 ## Support

@@ -596,71 +596,6 @@ $invoice = $client->invoices->create($accountId, [
 ]);
 ```
 
-## Troubleshooting
-
-### Issue: Tax Report Stays in "processing" State
-
-**Cause:** The asynchronous chaining process is taking longer than expected.
-
-**Solution:**
-- Wait a few minutes and check again
-- Ensure your account has proper Verifactu configuration
-- Check for any system status issues at B2BRouter
-
-### Issue: Tax Report State is "error"
-
-**Cause:** AEAT rejected the submission.
-
-**Solution:**
-```php
-$taxReport = $client->taxReports->retrieve($taxReportId);
-
-echo "Error details:\n";
-print_r($taxReport['errors']);
-
-// Common errors:
-// - Invalid NIF/CIF format
-// - Missing required fields
-// - Incorrect tax calculations
-// - Duplicate invoice number
-```
-
-### Issue: QR Code Not Generated
-
-**Cause:** QR code is only available after chaining is complete.
-
-**Solution:**
-```php
-// Wait for processing to complete
-do {
-    $taxReport = $client->taxReports->retrieve($taxReportId);
-
-    if (!empty($taxReport['qr'])) {
-        echo "QR code is now available\n";
-        break;
-    }
-
-    if ($taxReport['state'] === 'error') {
-        echo "Tax report failed, no QR code will be generated\n";
-        break;
-    }
-
-    sleep(5);
-} while (true);
-```
-
-### Issue: Invoice Missing Tax Report
-
-**Cause:** Invoice was not sent (`send_after_import` was false).
-
-**Solution:**
-```php
-// Option 1: Update the invoice and send it
-$invoice = $client->invoices->send($invoiceId);
-
-// Option 2: Recreate with send_after_import: true
-```
-
 ## Reference
 
 ### Important Field Names
@@ -701,6 +636,7 @@ $invoice = $client->invoices->send($invoiceId);
 ### Resources
 
 - [B2BRouter API Documentation](https://developer.b2brouter.net)
+- [B2Brouter Verifactu Guide](https://developer.b2brouter.net/v2025-10-13/docs/verifactu) - Full B2Brouter Verifactu Guide.
 - [Verifactu Official Specifications (AEAT)](https://www.agenciatributaria.es)
 - [Spanish Anti-Fraud Law](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2021-11473)
 - [Royal Decree 1007/2023](https://www.boe.es/buscar/act.php?id=BOE-A-2023-24840)
