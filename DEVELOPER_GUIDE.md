@@ -64,41 +64,60 @@ This section assumes you already have Neovim installed and configured with a plu
 
 ### Install PHP Language Server
 
-Use Mason (if you have it) or install Intelephense manually:
+#### Option 1: Install with Mason (Recommended)
+
+If you have Mason installed:
 
 ```vim
 :Mason
 ```
 
 Search for and install:
-- `intelephense` (PHP language server)
+- `phpactor` (PHP language server)
 
-### Manual Intelephense Installation
+#### Option 2: Manual Installation
 
-If you don't use Mason:
+Install Phpactor manually if you don't use Mason:
 
 ```bash
-npm install -g intelephense
+# Install via composer globally
+composer global require phpactor/phpactor
+
+# Make sure composer global bin is in your PATH
+export PATH="$HOME/.composer/vendor/bin:$PATH"
+
+# Or download the standalone PHAR
+curl -Lo phpactor https://github.com/phpactor/phpactor/releases/latest/download/phpactor.phar
+chmod +x phpactor
+sudo mv phpactor /usr/local/bin/phpactor
 ```
 
 ### LSP Configuration
 
-Add to your Neovim LSP config:
+Add to your Neovim LSP config. If you have a list of servers in the style of Kickstarter
+neovim configuration, just add phpactor:
 
 ```lua
--- In your LSP setup file
-require('lspconfig').intelephense.setup({
-  settings = {
-    intelephense = {
-      files = {
-        maxSize = 5000000,
-      },
-      environment = {
-        phpVersion = "8.2.0",
+```lua
+local servers = {
+  -- clangd = {},
+  -- rust_analyzer = {},
+  -- tsserver = {},
+
+  lua_ls = {
+    settings = {
+      Lua = {
+        workspace = { checkThirdParty = false },
+        telemetry = { enable = false },
+        diagnostics = {globals = { 'vim' }},
       },
     },
   },
-})
+  pyright = {},
+  ruby_lsp = {},
+  gopls = {},
+  phpactor = {},
+}
 ```
 
 ### PHP-Specific Keybindings (Optional)
