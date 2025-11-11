@@ -42,8 +42,6 @@ try {
             ]
         ],
         'send_after_import' => false
-    ], [
-        'idempotency_key' => uniqid('inv_', true) // Prevent duplicate creation
     ]);
 
     echo "Invoice created with ID: {$invoice['id']}\n\n";

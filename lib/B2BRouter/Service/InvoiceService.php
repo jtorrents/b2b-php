@@ -18,7 +18,7 @@ class InvoiceService extends ApiResource
      *   - invoice: (required) Invoice object
      *   - send_after_import: (optional) Send after import flag
      *   - ack: (optional) Acknowledgement flag
-     * @param array $options Request options (e.g., idempotency_key)
+     * @param array $options Request options
      * @return array The created invoice
      * @throws \B2BRouter\Exception\ApiErrorException
      */
@@ -59,7 +59,7 @@ class InvoiceService extends ApiResource
      * @param string $id The invoice ID
      * @param array $params Update data:
      *   - invoice: (required) Invoice object with fields to update
-     * @param array $options Request options (e.g., idempotency_key)
+     * @param array $options Request options
      * @return array The updated invoice
      * @throws \B2BRouter\Exception\ApiErrorException
      */
@@ -138,7 +138,7 @@ class InvoiceService extends ApiResource
      *
      * @param string $account The account identifier
      * @param array $params Import data
-     * @param array $options Request options (e.g., idempotency_key)
+     * @param array $options Request options
      * @return array The imported invoice
      * @throws \B2BRouter\Exception\ApiErrorException
      */

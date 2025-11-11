@@ -36,24 +36,6 @@ class InvoiceServiceTest extends TestCase
         $this->assertEquals('test_api_key_12345', $request['headers']['X-B2B-API-Key']);
     }
 
-    public function testCreateInvoiceWithIdempotencyKey()
-    {
-        [$client, $mockHttp] = $this->createTestClient();
-
-        $mockHttp->addResponse($this->mockResponse([
-            'invoice' => ['id' => 'inv_12345']
-        ]));
-
-        $client->invoices->create('test-account', [
-            'invoice' => ['number' => 'INV-001']
-        ], [
-            'idempotency_key' => 'unique-key-123'
-        ]);
-
-        $request = $mockHttp->getLastRequest();
-        $this->assertEquals('unique-key-123', $request['headers']['Idempotency-Key']);
-    }
-
     public function testCreateInvoiceRequiresInvoiceParameter()
     {
         $this->expectException(\InvalidArgumentException::class);

@@ -9,7 +9,6 @@ Official PHP SDK for the B2BRouter API, inspired by Stripe's PHP SDK architectur
 - **Pagination support** - Easy iteration through large result sets
 - **Error handling** - Comprehensive exception hierarchy
 - **Automatic retries** - Network failures handled automatically
-- **Idempotency keys** - Prevent duplicate operations
 - **Type safety** - Full PHP 7.4+ support with type hints
 
 ## Requirements
@@ -94,8 +93,6 @@ $invoice = $client->invoices->create('account-id', [
         // ... more fields
     ],
     'send_after_import' => false
-], [
-    'idempotency_key' => 'unique-key-123'  // Prevent duplicate creation
 ]);
 ```
 
@@ -223,18 +220,6 @@ try {
     echo "HTTP Status: {$e->getHttpStatus()}\n";
     echo "Request ID: {$e->getRequestId()}\n";
 }
-```
-
-## Idempotency
-
-Use idempotency keys to safely retry requests without performing the operation twice:
-
-```php
-$invoice = $client->invoices->create('account-id', [
-    'invoice' => [/* ... */]
-], [
-    'idempotency_key' => 'unique-operation-id-' . time()
-]);
 ```
 
 ## Automatic Retries
