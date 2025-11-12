@@ -19,12 +19,17 @@ Comprehensive guide for implementing Spanish electronic invoicing and tax report
 
 ## Overview
 
-Spain has implemented strict anti-fraud legislation requiring businesses to use certified invoicing systems that ensure data integrity and enable real-time tax reporting. The B2BRouter PHP SDK provides full compliance with these requirements out of the box.
+Spain has implemented strict anti-fraud legislation requiring businesses to use certified invoicing systems that ensure data integrity and enable real-time tax reporting. The B2BRouter PHP SDK provides full compliance with these requirements.
+
+**Important Prerequisites:**
+- Only businesses subject to Spanish Verifactu obligations need to generate tax reports
+- You must configure `TaxReportSettings` for your account before tax reports can be generated (see [Setup](#setup) section)
+- Configuration can be done via the SDK or through the B2BRouter web interface
 
 **Key Benefits:**
-- Automatic Verifactu compliance
+- Automatic Verifactu compliance for obligated issuers
 - No need for your own qualified electronic certificate
-- Automatic tax report generation and submission to AEAT
+- Automatic tax report generation and submission to AEAT (once configured)
 - Built-in QR code generation for invoice verification
 - Hash chain computation for tamper-proof audit trails
 - Rate limiting and retry logic handled automatically

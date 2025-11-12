@@ -227,7 +227,13 @@ $result = $client->invoices->acknowledge($invoiceId, [
 
 ### Tax Reports
 
-Tax reports are automatically generated when you create and send invoices. They contain critical compliance information including QR codes for verification.
+Tax reports are automatically generated based on the fiscal obligations of the invoice issuer. For example, issuers subject to Spanish Verifactu requirements will have tax reports automatically created when they send invoices.
+
+**Important**: Before tax reports can be generated, you must configure your `TaxReportSettings` for the account. This can be done either:
+- Via the SDK using `$client->taxReportSettings` operations
+- Through the B2BRouter web interface
+
+Once configured, tax reports will contain critical compliance information including QR codes for verification.
 
 #### Retrieve a Tax Report
 
