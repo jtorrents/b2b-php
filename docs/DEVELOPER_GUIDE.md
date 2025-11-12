@@ -5,7 +5,10 @@ Quick guide for setting up and working with the B2BRouter PHP SDK.
 ## Table of Contents
 
 - [Quick Setup](#quick-setup)
-- [Neovim PHP Setup](#neovim-php-setup)
+- [IDE Setup](#ide-setup)
+  - [Neovim](#neovim-php-setup)
+  - [VS Code](#vs-code-php-setup)
+  - [PHPStorm](#phpstorm-php-setup)
 - [Running Tests](#running-tests)
 - [Working with Examples](#working-with-examples)
 - [Best Practices](#best-practices)
@@ -58,7 +61,9 @@ B2B_API_BASE=https://api-staging.b2brouter.net
 
 ---
 
-## Neovim PHP Setup
+## IDE Setup
+
+### Neovim PHP Setup
 
 This section assumes you already have Neovim installed and configured with a plugin manager (lazy.nvim, packer, etc.).
 
@@ -143,6 +148,138 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 ```
+
+---
+
+### VS Code PHP Setup
+
+#### Option 1: Phpactor
+
+Install the Phpactor extension:
+
+```bash
+# Via command line
+code --install-extension phpactor.vscode-phpactor
+
+# Or via VS Code: Ctrl+P (Cmd+P on Mac), then:
+ext install phpactor.vscode-phpactor
+```
+
+**Install phpactor binary:**
+
+```bash
+# Via composer (recommended)
+composer global require phpactor/phpactor
+
+# Ensure composer global bin is in PATH
+export PATH="$HOME/.composer/vendor/bin:$PATH"
+
+# Or download PHAR
+curl -Lo phpactor https://github.com/phpactor/phpactor/releases/latest/download/phpactor.phar
+chmod +x phpactor
+sudo mv phpactor /usr/local/bin/phpactor
+```
+
+Add to `.vscode/settings.json`:
+
+```json
+{
+  "phpactor.enable": true,
+  "php.validate.executablePath": "/usr/bin/php",
+  "editor.formatOnSave": false
+}
+```
+
+#### Option 2: PHP Intelephense
+
+Alternative language server:
+
+```bash
+code --install-extension bmewburn.vscode-intelephense-client
+```
+
+Add to `.vscode/settings.json`:
+
+```json
+{
+  "intelephense.files.maxSize": 5000000,
+  "intelephense.environment.phpVersion": "7.4.0",
+  "php.validate.executablePath": "/usr/bin/php",
+  "editor.formatOnSave": false
+}
+```
+
+#### Optional: PHP Debug
+
+For debugging support with Xdebug:
+
+```bash
+code --install-extension xdebug.php-debug
+```
+
+#### Run Tests in VS Code
+
+Add to `.vscode/tasks.json`:
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run PHPUnit Tests",
+      "type": "shell",
+      "command": "vendor/bin/phpunit",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    }
+  ]
+}
+```
+
+Run tests with: `Ctrl+Shift+B` (Cmd+Shift+B on Mac) or Terminal > Run Task > Run PHPUnit Tests
+
+---
+
+### PHPStorm PHP Setup
+
+PHPStorm has built-in PHP support. Just configure the PHP interpreter and Composer.
+
+#### Configure PHP Interpreter
+
+1. Go to **File > Settings > PHP** (or **PHPStorm > Preferences > PHP** on Mac)
+2. Click the **...** button next to CLI Interpreter
+3. Click **+** and select **Other Local...**
+4. Set PHP executable path (e.g., `/usr/bin/php`)
+5. Click **OK**
+
+#### Configure Composer
+
+1. Go to **File > Settings > PHP > Composer**
+2. Set path to composer.json: `<project_root>/composer.json`
+3. Set Composer executable path (e.g., `/usr/bin/composer`)
+4. Click **OK**
+
+#### Run Tests in PHPStorm
+
+1. Right-click on `tests/` folder or any test file
+2. Select **Run 'tests'** or **Run '<TestFileName>'**
+3. Or use keyboard shortcut: `Ctrl+Shift+F10` (Cmd+Shift+R on Mac)
+
+#### Configure PHPUnit
+
+If tests don't run automatically:
+
+1. Go to **File > Settings > PHP > Test Frameworks**
+2. Click **+** > **PHPUnit Local**
+3. Set PHPUnit library path: `<project_root>/vendor/autoload.php`
+4. Use Composer autoloader: Enabled
+5. Click **OK**
 
 ---
 
