@@ -49,4 +49,140 @@ class TaxReportService extends ApiResource
 
         return isset($response['tax_report']) ? $response['tax_report'] : $response;
     }
+
+    /**
+     * Create a tax report.
+     *
+     * @param string $account The account identifier
+     * @param array $params The tax report parameters:
+     *   - tax_report: The tax report data (required)
+     *     - type: 'Verifactu' or 'TicketBai' (required)
+     *     - invoice_date: Invoice date (required)
+     *     - invoice_number: Invoice number (required)
+     *     - description: Description (required)
+     *     - customer_party_name: Customer name (required)
+     *     - customer_party_tax_id: Customer tax ID (required)
+     *     - customer_party_country: Customer country (required)
+     *     - tax_inclusive_amount: Total amount including tax (required)
+     *     - tax_amount: Total tax amount (required)
+     *     - invoice_type_code: Invoice type code (required)
+     *     - currency: Currency code (required)
+     *     - tax_breakdowns: Array of tax breakdowns (required)
+     *     - tax_report_lines: Array of tax report lines (for TicketBAI)
+     * @param array $options Additional request options
+     * @return array The created tax report
+     * @throws \InvalidArgumentException If required parameters are missing
+     * @throws \B2BRouter\Exception\ApiErrorException
+     */
+    public function create($account, array $params, array $options = [])
+    {
+        if (!isset($params['tax_report'])) {
+            throw new \InvalidArgumentException('The "tax_report" parameter is required');
+        }
+
+        $path = "/accounts/{$account}/tax_reports";
+        $response = $this->request('POST', $path, $params, $options);
+
+        return isset($response['tax_report']) ? $response['tax_report'] : $response;
+    }
+
+    /**
+     * Import a tax report from XML.
+     *
+     * @param string $account The account identifier
+     * @param array $params The import parameters:
+     *   - xml: The XML content (required)
+     * @param array $options Additional request options
+     * @return array The imported tax report
+     * @throws \InvalidArgumentException If required parameters are missing
+     * @throws \B2BRouter\Exception\ApiErrorException
+     */
+    public function import($account, array $params, array $options = [])
+    {
+        if (!isset($params['xml'])) {
+            throw new \InvalidArgumentException('The "xml" parameter is required');
+        }
+
+        $path = "/accounts/{$account}/tax_reports/import";
+        $response = $this->request('POST', $path, $params, $options);
+
+        return isset($response['tax_report']) ? $response['tax_report'] : $response;
+    }
+
+    /**
+     * Download a tax report as XML.
+     *
+     * @param string $id The tax report ID
+     * @return string The XML content
+     * @throws \B2BRouter\Exception\ApiErrorException
+     */
+    public function download($id)
+    {
+        $path = "/tax_reports/{$id}/download";
+
+        // Make direct request to get raw response body
+        $url = $this->client->getApiBase() . $path;
+        $headers = [
+            'X-B2B-API-Key' => $this->client->getApiKey(),
+            'X-B2B-API-Version' => $this->client->getApiVersion(),
+        ];
+
+        $response = $this->client->getHttpClient()->request(
+            'GET',
+            $url,
+            $headers,
+            null,
+            $this->client->getTimeout()
+        );
+
+        // Check for errors
+        if ($response['status'] >= 400) {
+            // Use handleResponse to throw appropriate exception
+            $this->handleResponse($response);
+        }
+
+        // Return raw XML body
+        return $response['body'];
+    }
+
+    /**
+     * Update/correct a tax report (subsanación).
+     * If the tax report has already been registered by the Tax Authority,
+     * this issues a correction. If not yet sent, it updates the fields.
+     *
+     * @param string $id The tax report ID
+     * @param array $params The tax report parameters:
+     *   - tax_report: The tax report data to update (required)
+     * @param array $options Additional request options
+     * @return array The updated/corrected tax report
+     * @throws \InvalidArgumentException If required parameters are missing
+     * @throws \B2BRouter\Exception\ApiErrorException
+     */
+    public function update($id, array $params, array $options = [])
+    {
+        if (!isset($params['tax_report'])) {
+            throw new \InvalidArgumentException('The "tax_report" parameter is required');
+        }
+
+        $path = "/tax_reports/{$id}";
+        $response = $this->request('PATCH', $path, $params, $options);
+
+        return isset($response['tax_report']) ? $response['tax_report'] : $response;
+    }
+
+    /**
+     * Delete/annulate a tax report (anulación).
+     * Creates an annullation tax report that is sent to the Tax Authority.
+     *
+     * @param string $id The tax report ID
+     * @return array The annullation tax report
+     * @throws \B2BRouter\Exception\ApiErrorException
+     */
+    public function delete($id)
+    {
+        $path = "/tax_reports/{$id}";
+        $response = $this->request('DELETE', $path);
+
+        return isset($response['tax_report']) ? $response['tax_report'] : $response;
+    }
 }
