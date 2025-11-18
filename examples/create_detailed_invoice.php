@@ -60,7 +60,7 @@ try {
             'currency' => 'EUR',
             'contact' => [
                 'name' => 'Tech Startup Inc',
-                'tin_value' => 'ESB98765432',
+                'tin_value' => 'ESP9109010J',
                 'country' => 'ES',
                 'email' => 'accounts@techstartup.com',
             ],

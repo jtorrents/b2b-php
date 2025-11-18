@@ -38,9 +38,34 @@ try {
     echo "=== VeriFactu Tax Report Example ===\n\n";
 
     // ============================================
+    // Step 0: Check if VeriFactu is configured
+    // ============================================
+    echo "Checking if VeriFactu is configured for this account...\n";
+
+    try {
+        $verifactuSettings = $client->taxReportSettings->retrieve($accountId, 'verifactu');
+        echo "✓ VeriFactu is configured\n";
+        echo "  Auto generate: " . ($verifactuSettings['auto_generate'] ? 'Yes' : 'No') . "\n";
+        echo "  Auto send: " . ($verifactuSettings['auto_send'] ? 'Yes' : 'No') . "\n\n";
+    } catch (ApiErrorException $e) {
+        if ($e->getHttpStatus() === 404) {
+            echo "✗ VeriFactu is NOT configured for this account!\n";
+            echo "  Please run 'php examples/tax_report_setup.php' first to configure VeriFactu.\n\n";
+            exit(1);
+        } else {
+            throw $e; // Re-throw if it's a different error
+        }
+    }
+
+    // ============================================
     // Step 1: Create a VeriFactu Tax Report
     // ============================================
-    echo "Creating VeriFactu tax report...\n\n";
+    echo "Creating VeriFactu tax report...\n";
+
+    // Generate random invoice number to avoid duplicates
+    $randomNumber = rand(1000, 9999);
+    $invoiceNumber = "2025-VF-{$randomNumber}";
+    echo "Using invoice number: {$invoiceNumber}\n\n";
 
     $taxReport = $client->taxReports->create($accountId, [
         'tax_report' => [
@@ -48,8 +73,8 @@ try {
             'type' => 'Verifactu',
 
             // Required: Invoice information
-            'invoice_date' => '2025-04-15',
-            'invoice_number' => '2025-001',
+            'invoice_date' => '2025-11-15',
+            'invoice_number' => $invoiceNumber,
             'invoice_type_code' => 'F1', // F1 = Standard invoice
 
             // Optional: Invoice series
@@ -60,7 +85,7 @@ try {
 
             // Required: Customer information
             'customer_party_name' => 'Empresa Ejemplo S.L.',
-            'customer_party_tax_id' => 'B12345678',
+            'customer_party_tax_id' => 'P9109010J',
             'customer_party_country' => 'es',
 
             // Required: Amounts
@@ -123,7 +148,8 @@ try {
         sleep(2); // Wait 2 seconds between checks
 
         $status = $client->taxReports->retrieve($taxReportId);
-        echo "  Check {$i+1}: State = {$status['state']}";
+        $checkNum = $i + 1;
+        echo "  Check {$checkNum}: State = {$status['state']}";
 
         if (isset($status['chained_at'])) {
             echo " (Chained at: {$status['chained_at']})";
@@ -181,18 +207,16 @@ try {
     try {
         $correction = $client->taxReports->update($taxReportId, [
             'tax_report' => [
-                'description' => 'CORRECTED: Professional consulting services for Q1 2025 - Updated amount',
-                'tax_inclusive_amount' => 133.1,
-                'tax_amount' => 23.1,
+                'description' => 'CORRECTED: new description',
                 'tax_breakdowns' => [
                     [
                         'name' => 'IVA',
                         'category' => 'S',
                         'non_exemption_code' => 'S1',
                         'percent' => 21.0,
-                        'taxable_base' => 110.0,
-                        'tax_amount' => 23.1,
-                        'special_regime_key' => '01'
+                        'taxable_base' => 100.0,
+                        'tax_amount' => 21.0,
+                        'special_regime_key' => '04'
                     ]
                 ]
             ]
@@ -227,7 +251,8 @@ try {
             sleep(2);
 
             $annulStatus = $client->taxReports->retrieve($annullation['id']);
-            echo "  Check {$i+1}: State = {$annulStatus['state']}\n";
+            $checkNum = $i + 1;
+            echo "  Check {$checkNum}: State = {$annulStatus['state']}\n";
 
             if (in_array($annulStatus['state'], ['annulled', 'error'])) {
                 echo "\nAnnullation reached final state: {$annulStatus['state']}\n";

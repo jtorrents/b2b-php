@@ -178,7 +178,7 @@ class InvoiceService extends ApiResource
     public function validate($id, array $params = [])
     {
         $path = "/invoices/{$id}/validate";
-        return $this->request('POST', $path, $params);
+        return $this->request('GET', $path, $params);
     }
 
     /**

@@ -2,18 +2,22 @@
 /**
  * Tax Reports - Complete CRUD Example
  *
- * Demonstrates all tax report operations for VeriFactu and TicketBAI:
+ * Demonstrates all tax report operations for VeriFactu:
  * - Create tax reports
  * - Retrieve and monitor state
  * - List with filters
  * - Download XML
- * - Update/correct (VeriFactu)
- * - Delete/annulate
+ * - Update/correct (subsanación)
+ * - Delete/annulate (anulación)
+ *
+ * Note: An account can only have one tax report type configured at a time.
+ * This example uses VeriFactu. For TicketBAI examples, see ticketbai_tax_report.php
  *
  * Setup:
  *   1. Copy .env.example to .env
  *   2. Add your B2B_API_KEY and B2B_ACCOUNT_ID
- *   3. Run: php examples/tax_reports.php
+ *   3. Configure VeriFactu: php examples/tax_report_setup.php
+ *   4. Run: php examples/tax_reports.php
  */
 
 require_once __DIR__ . '/bootstrap.php';
@@ -33,19 +37,43 @@ $client = new B2BRouterClient(env('B2B_API_KEY'), [
 $accountId = env('B2B_ACCOUNT_ID');
 
 try {
-    echo "=== B2BRouter Tax Report Examples ===\n\n";
+    echo "=== B2BRouter Tax Report Examples (VeriFactu) ===\n\n";
+
+    // ============================================
+    // Step 0: Check if VeriFactu is configured
+    // ============================================
+    echo "0. Checking if VeriFactu is configured...\n";
+
+    try {
+        $verifactuSettings = $client->taxReportSettings->retrieve($accountId, 'verifactu');
+        echo "✓ VeriFactu is configured\n\n";
+    } catch (ApiErrorException $e) {
+        if ($e->getHttpStatus() === 404) {
+            echo "✗ VeriFactu is NOT configured for this account!\n";
+            echo "  Please run 'php examples/tax_report_setup.php' first to configure VeriFactu.\n\n";
+            exit(1);
+        } else {
+            throw $e;
+        }
+    }
 
     // ============================================
     // 1. Create a VeriFactu Tax Report
     // ============================================
     echo "1. Creating a VeriFactu tax report...\n";
+
+    // Generate random invoice number to avoid duplicates
+    $randomNumber = rand(1000, 9999);
+    $invoiceNumber = "2025-VF-{$randomNumber}";
+    echo "Using invoice number: {$invoiceNumber}\n";
+
     $verifactuReport = $client->taxReports->create($accountId, [
         'tax_report' => [
             'type' => 'Verifactu',
             'invoice_date' => '2025-04-03',
-            'invoice_number' => '2025-VF-001',
+            'invoice_number' => $invoiceNumber,
             'description' => 'Professional consulting services',
-            'customer_party_tax_id' => 'B12345678',
+            'customer_party_tax_id' => 'P9109010J',
             'customer_party_country' => 'es',
             'customer_party_name' => 'Ejemplo S.L.',
             'tax_inclusive_amount' => 121.0,
@@ -75,56 +103,9 @@ try {
     echo "\n";
 
     // ============================================
-    // 2. Create a TicketBAI Tax Report
+    // 2. Retrieve a tax report
     // ============================================
-    echo "2. Creating a TicketBAI tax report...\n";
-    $ticketbaiReport = $client->taxReports->create($accountId, [
-        'tax_report' => [
-            'type' => 'TicketBai',
-            'invoice_date' => '2025-04-03',
-            'invoice_number' => '2025-TB-001',
-            'description' => 'Sale of products',
-            'customer_party_tax_id' => 'B12345678',
-            'customer_party_country' => 'es',
-            'customer_party_postalcode' => '48010',
-            'customer_party_address' => 'Calle Falsa 123, 3ºA',
-            'customer_party_name' => 'Cliente Ejemplo S.L.',
-            'tax_inclusive_amount' => 121.0,
-            'tax_amount' => 21.0,
-            'invoice_type_code' => 'F1',
-            'currency' => 'EUR',
-            'tax_report_lines' => [
-                [
-                    'quantity' => 1.0,
-                    'description' => 'Product A',
-                    'price' => 100.0,
-                    'tax_inclusive_amount' => 121.0,
-                    'tax_exclusive_amount' => 100.0,
-                    'tax_amount' => 21.0
-                ]
-            ],
-            'tax_breakdowns' => [
-                [
-                    'category' => 'S',
-                    'non_exempt' => true,
-                    'non_exemption_code' => 'S1',
-                    'percent' => 21.0,
-                    'taxable_base' => 100.0,
-                    'tax_amount' => 21.0
-                ]
-            ]
-        ]
-    ]);
-
-    echo "TicketBAI tax report created with ID: {$ticketbaiReport['id']}\n";
-    echo "State: {$ticketbaiReport['state']}\n";
-    echo "QR code: " . (isset($ticketbaiReport['qr']) ? 'Available' : 'Not yet available (will be generated after chaining)') . "\n";
-    echo "Note: For TicketBAI, the QR code is generated after chaining\n\n";
-
-    // ============================================
-    // 3. Retrieve a tax report
-    // ============================================
-    echo "3. Retrieving the VeriFactu tax report...\n";
+    echo "2. Retrieving the VeriFactu tax report...\n";
     $taxReportId = $verifactuReport['id'];
     $retrievedReport = $client->taxReports->retrieve($taxReportId);
     echo "Retrieved tax report: {$retrievedReport['label']}\n";
@@ -132,9 +113,9 @@ try {
     echo "Current state: {$retrievedReport['state']}\n\n";
 
     // ============================================
-    // 4. Monitor tax report state (polling)
+    // 3. Monitor tax report state (polling)
     // ============================================
-    echo "4. Monitoring tax report state...\n";
+    echo "3. Monitoring tax report state...\n";
     echo "Note: In production, use webhooks instead of polling\n";
 
     $maxAttempts = 10;
@@ -163,9 +144,9 @@ try {
     echo "\n";
 
     // ============================================
-    // 5. List tax reports with filters
+    // 4. List tax reports with filters
     // ============================================
-    echo "5. Listing tax reports...\n";
+    echo "4. Listing tax reports...\n";
     $reports = $client->taxReports->all($accountId, [
         'limit' => 10,
         'offset' => 0,
@@ -182,9 +163,9 @@ try {
     echo "\n";
 
     // ============================================
-    // 6. List with date filters
+    // 5. List with date filters
     // ============================================
-    echo "6. Listing tax reports with date filters...\n";
+    echo "5. Listing tax reports with date filters...\n";
     $filteredReports = $client->taxReports->all($accountId, [
         'updated_at_from' => '2025-04-01',
         'limit' => 5,
@@ -192,9 +173,9 @@ try {
     echo "Found {$filteredReports->count()} tax reports updated since 2025-04-01\n\n";
 
     // ============================================
-    // 7. Download tax report XML
+    // 6. Download tax report XML
     // ============================================
-    echo "7. Downloading tax report XML...\n";
+    echo "6. Downloading tax report XML...\n";
     try {
         $xml = $client->taxReports->download($taxReportId);
         echo "XML downloaded successfully (" . strlen($xml) . " bytes)\n";
@@ -204,26 +185,24 @@ try {
     }
 
     // ============================================
-    // 8. Update/Correct a tax report (VeriFactu only)
+    // 7. Update/Correct a tax report (VeriFactu only)
     // ============================================
-    echo "8. Correcting the VeriFactu tax report...\n";
+    echo "7. Correcting the VeriFactu tax report...\n";
     echo "Note: This creates a correction ('subsanación') for VeriFactu\n";
 
     try {
         $correctedReport = $client->taxReports->update($taxReportId, [
             'tax_report' => [
                 'description' => 'Corrected: Professional consulting services - Updated description',
-                'tax_inclusive_amount' => 133.1,
-                'tax_amount' => 23.1,
                 'tax_breakdowns' => [
                     [
                         'name' => 'IVA',
                         'category' => 'S',
                         'non_exemption_code' => 'S1',
                         'percent' => 21.0,
-                        'taxable_base' => 110.0,
-                        'tax_amount' => 23.1,
-                        'special_regime_key' => '01'
+                        'taxable_base' => 100.0,
+                        'tax_amount' => 21.0,
+                        'special_regime_key' => '04'
                     ]
                 ]
             ]
@@ -236,10 +215,10 @@ try {
     }
 
     // ============================================
-    // 9. Delete/Annulate a tax report
+    // 8. Delete/Annulate a tax report
     // ============================================
-    echo "9. Annulating a tax report...\n";
-    echo "Note: This creates an annullation ('anulación') for both VeriFactu and TicketBAI\n";
+    echo "8. Annulating a tax report...\n";
+    echo "Note: This creates an annullation ('anulación') for VeriFactu\n";
 
     try {
         $annullation = $client->taxReports->delete($taxReportId);
@@ -267,12 +246,6 @@ try {
         echo "Could not annulate: {$e->getMessage()}\n";
     }
     echo "\n";
-
-    // ============================================
-    // 10. Import a tax report from XML
-    // ============================================
-    echo "10. Importing a tax report from XML...\n";
-    echo "Note: See import_tax_report.php for a complete example\n\n";
 
     echo "=== All operations completed successfully ===\n";
 

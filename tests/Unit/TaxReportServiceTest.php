@@ -180,48 +180,6 @@ class TaxReportServiceTest extends TestCase
         ]);
     }
 
-    public function testImportTaxReport()
-    {
-        [$client, $mockHttp] = $this->createTestClient();
-
-        $mockHttp->addResponse($this->mockResponse([
-            'tax_report' => [
-                'id' => 'tr_import123',
-                'type' => 'Verifactu',
-                'state' => 'processing',
-                'invoice_number' => '2025-002',
-                'qr' => 'base64encodedqrcode...'
-            ]
-        ]));
-
-        $xmlContent = '<?xml version="1.0" encoding="UTF-8"?><RegistroAlta>...</RegistroAlta>';
-
-        $result = $client->taxReports->import('test-account', [
-            'xml' => $xmlContent
-        ]);
-
-        $this->assertEquals('tr_import123', $result['id']);
-        $this->assertEquals('Verifactu', $result['type']);
-        $this->assertEquals('processing', $result['state']);
-
-        // Verify request
-        $request = $mockHttp->getLastRequest();
-        $this->assertEquals('POST', $request['method']);
-        $this->assertStringContainsString('/accounts/test-account/tax_reports/import', $request['url']);
-    }
-
-    public function testImportTaxReportRequiresXmlParameter()
-    {
-        [$client, $mockHttp] = $this->createTestClient();
-
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('The "xml" parameter is required');
-
-        $client->taxReports->import('test-account', [
-            'type' => 'Verifactu'
-        ]);
-    }
-
     public function testDownloadTaxReport()
     {
         [$client, $mockHttp] = $this->createTestClient();

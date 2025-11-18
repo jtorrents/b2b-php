@@ -38,9 +38,36 @@ try {
     echo "=== TicketBAI Tax Report Example ===\n\n";
 
     // ============================================
+    // Step 0: Check if TicketBAI is configured
+    // ============================================
+    echo "Checking if TicketBAI is configured for this account...\n";
+
+    try {
+        $ticketbaiSettings = $client->taxReportSettings->retrieve($accountId, 'tbai');
+        echo "✓ TicketBAI is configured\n";
+        echo "  Delegation: " . ($ticketbaiSettings['delegation'] ?? 'Not set') . "\n";
+        echo "  Auto generate: " . ($ticketbaiSettings['auto_generate'] ? 'Yes' : 'No') . "\n";
+        echo "  Auto send: " . ($ticketbaiSettings['auto_send'] ? 'Yes' : 'No') . "\n\n";
+    } catch (ApiErrorException $e) {
+        if ($e->getHttpStatus() === 404) {
+            echo "✗ TicketBAI is NOT configured for this account!\n";
+            echo "  Please configure TicketBAI settings first.\n";
+            echo "  Refer to ticketbai.md for configuration instructions.\n\n";
+            exit(1);
+        } else {
+            throw $e; // Re-throw if it's a different error
+        }
+    }
+
+    // ============================================
     // Step 1: Create a TicketBAI Tax Report
     // ============================================
-    echo "Creating TicketBAI tax report...\n\n";
+    echo "Creating TicketBAI tax report...\n";
+
+    // Generate random invoice number to avoid duplicates
+    $randomNumber = rand(1000, 9999);
+    $invoiceNumber = "2025-TB-{$randomNumber}";
+    echo "Using invoice number: {$invoiceNumber}\n\n";
 
     $taxReport = $client->taxReports->create($accountId, [
         'tax_report' => [
@@ -49,7 +76,7 @@ try {
 
             // Required: Invoice information
             'invoice_date' => '2025-04-15',
-            'invoice_number' => '2025-001',
+            'invoice_number' => $invoiceNumber,
             'invoice_type_code' => 'F1', // F1 = Standard invoice
 
             // Optional: Invoice series
@@ -133,7 +160,8 @@ try {
         sleep(2); // Wait 2 seconds between checks
 
         $status = $client->taxReports->retrieve($taxReportId);
-        echo "  Check {$i+1}: State = {$status['state']}";
+        $checkNum = $i + 1;
+        echo "  Check {$checkNum}: State = {$status['state']}";
 
         if (isset($status['chained_at'])) {
             echo " (Chained at: {$status['chained_at']})";
@@ -195,13 +223,18 @@ try {
     // ============================================
     // Step 4: Complex example with multiple lines
     // ============================================
-    echo "Creating a more complex TicketBAI with multiple lines...\n\n";
+    echo "Creating a more complex TicketBAI with multiple lines...\n";
+
+    // Generate another random invoice number
+    $randomNumber2 = rand(1000, 9999);
+    $invoiceNumber2 = "2025-TB-{$randomNumber2}";
+    echo "Using invoice number: {$invoiceNumber2}\n\n";
 
     $complexReport = $client->taxReports->create($accountId, [
         'tax_report' => [
             'type' => 'TicketBai',
             'invoice_date' => '2025-04-16',
-            'invoice_number' => '2025-002',
+            'invoice_number' => $invoiceNumber2,
             'invoice_type_code' => 'F1',
             'description' => 'Multiple products with global discount',
             'customer_party_name' => 'Cliente B S.L.',
@@ -284,7 +317,8 @@ try {
             sleep(2);
 
             $annulStatus = $client->taxReports->retrieve($annullation['id']);
-            echo "  Check {$i+1}: State = {$annulStatus['state']}\n";
+            $checkNum = $i + 1;
+            echo "  Check {$checkNum}: State = {$annulStatus['state']}\n";
 
             if (in_array($annulStatus['state'], ['annulled', 'error'])) {
                 echo "\nAnnullation reached final state: {$annulStatus['state']}\n";

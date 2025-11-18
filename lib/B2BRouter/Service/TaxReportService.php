@@ -87,29 +87,6 @@ class TaxReportService extends ApiResource
     }
 
     /**
-     * Import a tax report from XML.
-     *
-     * @param string $account The account identifier
-     * @param array $params The import parameters:
-     *   - xml: The XML content (required)
-     * @param array $options Additional request options
-     * @return array The imported tax report
-     * @throws \InvalidArgumentException If required parameters are missing
-     * @throws \B2BRouter\Exception\ApiErrorException
-     */
-    public function import($account, array $params, array $options = [])
-    {
-        if (!isset($params['xml'])) {
-            throw new \InvalidArgumentException('The "xml" parameter is required');
-        }
-
-        $path = "/accounts/{$account}/tax_reports/import";
-        $response = $this->request('POST', $path, $params, $options);
-
-        return isset($response['tax_report']) ? $response['tax_report'] : $response;
-    }
-
-    /**
      * Download a tax report as XML.
      *
      * @param string $id The tax report ID

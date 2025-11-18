@@ -39,6 +39,12 @@
       "B2BRouter\\Tests\\": "tests/"
     }
   },
+  "scripts": {
+    "test": "phpunit --exclude-group external,integration",
+    "test:all": "phpunit",
+    "test:external": "phpunit --group external",
+    "test:coverage": "phpunit --coverage-html coverage"
+  },
   "minimum-stability": "stable",
   "prefer-stable": true
 }

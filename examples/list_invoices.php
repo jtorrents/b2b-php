@@ -34,11 +34,11 @@ try {
 
     foreach ($invoices as $invoice) {
         printf("%-15s %-20s %-12s %-10s %s\n",
-            substr($invoice['id'], 0, 12) . '...',
+            substr((string)$invoice['id'], 0, 12) . '...',
             $invoice['number'] ?? 'N/A',
-            $invoice['issue_date'] ?? 'N/A',
-            $invoice['currency'] . ' ' . number_format($invoice['total_amount'] ?? 0, 2),
-            $invoice['status'] ?? 'unknown'
+            $invoice['date'] ?? 'N/A',
+            $invoice['currency'] . ' ' . number_format($invoice['total'] ?? 0, 2),
+            $invoice['state'] ?? 'unknown'
         );
     }
 

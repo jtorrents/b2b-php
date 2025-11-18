@@ -375,10 +375,9 @@ All examples automatically load credentials from `.env` via the `examples/bootst
 - `invoicing_in_spain_with_verifactu.php` - Spanish Verifactu compliance
 
 **Tax Report Examples:**
-- `tax_reports.php` - Complete CRUD operations for VeriFactu and TicketBAI
+- `tax_reports.php` - Complete CRUD operations for VeriFactu
 - `verifactu_tax_report.php` - VeriFactu-specific workflow
 - `ticketbai_tax_report.php` - TicketBAI-specific workflow
-- `import_tax_report.php` - Import from XML
 - `list_tax_reports.php` - Listing and filtering
 
 ---

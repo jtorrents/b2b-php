@@ -31,7 +31,7 @@ try {
             'currency' => 'EUR',
             'contact' => [
                 'name' => 'Acme Corporation',
-                'tin_value' => 'ESB12345678',
+                'tin_value' => 'ESP9109010J',
                 'country' => 'ES',
             ],
             'invoice_lines_attributes' => [

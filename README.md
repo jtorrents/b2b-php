@@ -546,12 +546,20 @@ The SDK includes a comprehensive test suite. To run tests:
 # Install development dependencies
 composer install
 
-# Run all tests
+# Run unit tests (fast, excludes external integration tests)
 composer test
 
+# Run all tests including external integration tests
+composer test:all
+
+# Run only external integration tests
+composer test:external
+
 # Run tests with coverage
-composer test-coverage
+composer test:coverage
 ```
+
+By default, `composer test` excludes external integration tests that make real HTTP requests to external services. This keeps the test suite fast and reliable for development.
 
 For more information about contributing, setting up your development environment, and coding standards, see the [Developer Guide](docs/DEVELOPER_GUIDE.md).
 

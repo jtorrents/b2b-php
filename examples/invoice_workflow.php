@@ -32,7 +32,7 @@ try {
             'currency' => 'EUR',
             'contact' => [
                 'name' => 'Demo Customer',
-                'tin_value' => 'ESB11111111',
+                'tin_value' => 'ESP9109010J',
                 'country' => 'ES',
                 'email' => 'demo@example.com',
             ],

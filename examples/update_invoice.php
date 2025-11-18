@@ -17,23 +17,22 @@ try {
     echo "Fetching invoice {$invoiceId}...\n";
     $invoice = $client->invoices->retrieve($invoiceId);
 
-    echo "Current status: {$invoice['status']}\n";
-    echo "Current notes: " . ($invoice['notes'] ?? 'None') . "\n\n";
+    echo "Current status: {$invoice['state']}\n";
+    echo "Current extra info: " . ($invoice['extra_info'] ?? 'None') . "\n";
+    echo "Current file reference: " . ($invoice['file_reference'] ?? 'None') . "\n\n";
 
     // Update invoice
     echo "Updating invoice...\n";
     $updated = $client->invoices->update($invoiceId, [
         'invoice' => [
-            'notes' => 'Updated on ' . date('Y-m-d H:i:s') . ' - Payment reminder sent',
-            'metadata' => [
-                'reminder_sent' => true,
-                'reminder_date' => date('c'),
-            ],
+            'extra_info' => 'Updated on ' . date('Y-m-d H:i:s') . ' - Payment reminder sent',
+            'file_reference' => 'foo123',
         ]
     ]);
 
     echo "✓ Invoice updated successfully!\n";
-    echo "  New notes: {$updated['notes']}\n";
+    echo "  New extra info: {$updated['extra_info']}\n";
+    echo "  New file reference: {$updated['file_reference']}\n";
 
 } catch (Exception $e) {
     echo "✗ Error: {$e->getMessage()}\n";

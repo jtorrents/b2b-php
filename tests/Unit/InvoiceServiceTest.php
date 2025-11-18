@@ -15,14 +15,14 @@ class InvoiceServiceTest extends TestCase
             'invoice' => [
                 'id' => 'inv_12345',
                 'number' => 'INV-2025-001',
-                'total_amount' => 1000.00
+                'total' => 1000.00
             ]
         ]));
 
         $result = $client->invoices->create('test-account', [
             'invoice' => [
                 'number' => 'INV-2025-001',
-                'total_amount' => 1000.00
+                'total' => 1000.00
             ]
         ]);
 
@@ -255,7 +255,7 @@ class InvoiceServiceTest extends TestCase
 
         // Verify request
         $request = $mockHttp->getLastRequest();
-        $this->assertEquals('POST', $request['method']);
+        $this->assertEquals('GET', $request['method']);
         $this->assertStringContainsString('/invoices/inv_12345/validate', $request['url']);
     }
 

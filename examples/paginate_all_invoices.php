@@ -50,7 +50,7 @@ try {
 
     foreach ($allInvoices as $invoice) {
         $currency = $invoice['currency'] ?? 'EUR';
-        $amount = $invoice['total_amount'] ?? 0;
+        $amount = $invoice['total'] ?? 0;
 
         if (!isset($currencies[$currency])) {
             $currencies[$currency] = 0;

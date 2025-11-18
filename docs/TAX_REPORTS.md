@@ -529,20 +529,6 @@ $taxReport = $client->taxReports->create($accountId, [
 ]);
 ```
 
-#### Import a Tax Report from XML
-
-Import an existing VeriFactu or TicketBAI XML:
-
-```php
-$xmlContent = file_get_contents('verifactu_report.xml');
-
-$taxReport = $client->taxReports->import($accountId, [
-    'xml' => $xmlContent
-]);
-
-echo "Imported tax report ID: {$taxReport['id']}\n";
-```
-
 #### Retrieve a Tax Report
 
 Retrieve a single tax report by ID:
@@ -727,14 +713,6 @@ Key TicketBAI characteristics:
 - **QR code is generated AFTER chaining** - you must poll the state to retrieve it before adding it to your invoice
 - Basque Country tax compliance
 
-### Import Tax Reports
-
-**[examples/import_tax_report.php](../examples/import_tax_report.php)** - Import tax reports from XML:
-- Import VeriFactu XML (RegistroAlta)
-- Import from XML files
-- Error handling
-- Best practices for XML import
-
 ### List and Filter Tax Reports
 
 **[examples/list_tax_reports.php](../examples/list_tax_reports.php)** - Comprehensive listing and filtering:
@@ -768,9 +746,6 @@ Key TicketBAI characteristics:
 
    # TicketBAI-specific example
    php examples/ticketbai_tax_report.php
-
-   # Import from XML
-   php examples/import_tax_report.php
 
    # List and filter
    php examples/list_tax_reports.php

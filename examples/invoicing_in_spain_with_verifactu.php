@@ -47,7 +47,7 @@ try {
             'language' => 'es',
             'contact' => [
                 'name' => 'Cliente Ejemplo SA',
-                'tin_value' => 'ESB12345678',
+                'tin_value' => 'ESP9109010J',
                 'country' => 'ES',
                 'address' => 'Calle Gran Vía, 123',
                 'city' => 'Madrid',
