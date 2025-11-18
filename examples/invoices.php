@@ -1,17 +1,20 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/bootstrap.php';
 
 use B2BRouter\B2BRouterClient;
 use B2BRouter\Exception\ApiErrorException;
 
+// Check required environment variables
+checkRequiredEnv();
+
 // Initialize the client
-$client = new B2BRouterClient('your-api-key-here', [
-    'api_version' => '2025-10-13',
-    // 'api_base' => 'https://api.b2brouter.net', // For production
+$client = new B2BRouterClient(env('B2B_API_KEY'), [
+    'api_version' => env('B2B_API_VERSION', '2025-10-13'),
+    'api_base' => env('B2B_API_BASE'),
 ]);
 
-$accountId = 'your-account-id';
+$accountId = env('B2B_ACCOUNT_ID');
 
 try {
     echo "=== B2BRouter Invoice Examples ===\n\n";

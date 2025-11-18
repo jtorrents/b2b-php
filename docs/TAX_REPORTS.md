@@ -746,19 +746,34 @@ Key TicketBAI characteristics:
 
 ### Running the Examples
 
-```bash
-# Set your API credentials
-export B2B_API_KEY='your-api-key'
-export B2B_ACCOUNT_ID='your-account-id'
+1. **Setup environment:**
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your B2B_API_KEY and B2B_ACCOUNT_ID
+   # The SDK defaults to staging - uncomment B2B_API_BASE for production
+   ```
 
-# Run an example
-php examples/tax_reports.php
+2. **Install dependencies:**
+   ```bash
+   composer install
+   ```
 
-# Run VeriFactu-specific example
-php examples/verifactu_tax_report.php
+3. **Run examples:**
+   ```bash
+   # Complete CRUD workflow
+   php examples/tax_reports.php
 
-# Run TicketBAI-specific example
-php examples/ticketbai_tax_report.php
-```
+   # VeriFactu-specific example
+   php examples/verifactu_tax_report.php
 
-**Note**: Remember to replace `'your-api-key-here'` and `'your-account-id'` in the example files with your actual credentials before running them.
+   # TicketBAI-specific example
+   php examples/ticketbai_tax_report.php
+
+   # Import from XML
+   php examples/import_tax_report.php
+
+   # List and filter
+   php examples/list_tax_reports.php
+   ```
+
+All examples automatically load credentials from your `.env` file.

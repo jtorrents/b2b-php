@@ -1,11 +1,15 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/bootstrap.php';
 
 use B2BRouter\B2BRouterClient;
 
-$client = new B2BRouterClient($_ENV['B2B_API_KEY'] ?? 'your-api-key');
-$accountId = $_ENV['B2B_ACCOUNT_ID'] ?? 'your-account-id';
+$client = new B2BRouterClient(env('B2B_API_KEY'), [
+    'api_version' => env('B2B_API_VERSION', '2025-10-13'),
+    'api_base' => env('B2B_API_BASE'),
+]);
+
+$accountId = env('B2B_ACCOUNT_ID');
 
 try {
     echo "Fetching invoices from the last 30 days...\n\n";

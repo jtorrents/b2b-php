@@ -97,19 +97,68 @@ echo "Invoice created: {$invoice['id']}\n";
 echo "Total: €{$invoice['total']}\n";
 ```
 
+## Running Examples
+
+The SDK includes comprehensive examples demonstrating all features. To run them:
+
+### 1. Setup Environment
+
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env and add your credentials
+# Get your API key from: https://app.b2brouter.net/settings/api
+nano .env
+```
+
+Your `.env` file should look like:
+```env
+B2B_API_KEY=your-api-key-here
+B2B_ACCOUNT_ID=your-account-id
+# B2B_API_BASE=https://api.b2brouter.net  # Uncomment for production (defaults to staging)
+```
+
+### 2. Install Dependencies
+
+```bash
+composer install
+```
+
+### 3. Run Examples
+
+```bash
+# Invoice examples
+php examples/invoices.php
+php examples/create_simple_invoice.php
+php examples/list_invoices.php
+
+# Tax report examples (VeriFactu, TicketBAI)
+php examples/tax_reports.php
+php examples/verifactu_tax_report.php
+php examples/ticketbai_tax_report.php
+
+# See all available examples
+ls examples/
+```
+
+All examples use the environment variables from your `.env` file automatically.
+
 ## Configuration
 
 The client accepts several configuration options:
 
 ```php
 $client = new B2BRouterClient('your-api-key', [
-    'api_base' => 'https://api.b2brouter.net',  // Production URL
+    // 'api_base' => 'https://api.b2brouter.net',  // Production URL
     // 'api_base' => 'https://api-staging.b2brouter.net',  // Staging URL (default)
     'api_version' => '2025-10-13',              // API version
     'timeout' => 80,                             // Request timeout in seconds
     'max_retries' => 3,                          // Maximum retry attempts
 ]);
 ```
+
+**Default Environment:** The SDK defaults to the **staging environment** (`https://api-staging.b2brouter.net`) for safe testing. To use production, set `api_base` to `https://api.b2brouter.net`.
 
 ### Environment Variables
 

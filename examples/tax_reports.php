@@ -1,17 +1,36 @@
 <?php
+/**
+ * Tax Reports - Complete CRUD Example
+ *
+ * Demonstrates all tax report operations for VeriFactu and TicketBAI:
+ * - Create tax reports
+ * - Retrieve and monitor state
+ * - List with filters
+ * - Download XML
+ * - Update/correct (VeriFactu)
+ * - Delete/annulate
+ *
+ * Setup:
+ *   1. Copy .env.example to .env
+ *   2. Add your B2B_API_KEY and B2B_ACCOUNT_ID
+ *   3. Run: php examples/tax_reports.php
+ */
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/bootstrap.php';
 
 use B2BRouter\B2BRouterClient;
 use B2BRouter\Exception\ApiErrorException;
 
+// Check required environment variables
+checkRequiredEnv();
+
 // Initialize the client
-$client = new B2BRouterClient('your-api-key-here', [
-    'api_version' => '2025-10-13',
-    // 'api_base' => 'https://api-staging.b2brouter.net', // For staging
+$client = new B2BRouterClient(env('B2B_API_KEY'), [
+    'api_version' => env('B2B_API_VERSION', '2025-10-13'),
+    'api_base' => env('B2B_API_BASE'),
 ]);
 
-$accountId = 'your-account-id';
+$accountId = env('B2B_ACCOUNT_ID');
 
 try {
     echo "=== B2BRouter Tax Report Examples ===\n\n";
