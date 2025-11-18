@@ -67,7 +67,7 @@ function checkRequiredEnv(array $required = ['B2B_API_KEY', 'B2B_ACCOUNT_ID'])
         echo "     cp .env.example .env\n\n";
         echo "  2. Edit .env and add your B2BRouter credentials\n\n";
         echo "  3. Get your credentials from:\n";
-        echo "     https://app.b2brouter.net/settings/api\n\n";
+        echo "     https://app.b2brouter.net\n\n";
         exit(1);
     }
 }

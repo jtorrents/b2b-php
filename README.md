@@ -108,8 +108,8 @@ The SDK includes comprehensive examples demonstrating all features. To run them:
 cp .env.example .env
 
 # Edit .env and add your credentials
-# Get your API key from: https://app.b2brouter.net/settings/api
-nano .env
+# Get your API key from: https://app.b2brouter.net
+vim .env
 ```
 
 Your `.env` file should look like:
@@ -159,24 +159,6 @@ $client = new B2BRouterClient('your-api-key', [
 ```
 
 **Default Environment:** The SDK defaults to the **staging environment** (`https://api-staging.b2brouter.net`) for safe testing. To use production, set `api_base` to `https://api.b2brouter.net`.
-
-### Environment Variables
-
-For convenience, you can store your credentials in environment variables:
-
-```php
-// Using $_ENV
-$client = new B2BRouterClient($_ENV['B2B_API_KEY']);
-$accountId = $_ENV['B2B_ACCOUNT_ID'];
-```
-
-Example `.env` file:
-
-```
-B2B_API_KEY=your-api-key-here
-B2B_ACCOUNT_ID=your-account-id
-B2B_API_BASE=https://api-staging.b2brouter.net
-```
 
 ## Core Concepts
 

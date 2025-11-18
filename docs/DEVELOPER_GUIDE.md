@@ -337,7 +337,7 @@ All examples are in the `examples/` directory and use environment variables for 
    # B2B_API_BASE=https://api.b2brouter.net  # Uncomment for production (defaults to staging)
    ```
 
-   Get your API key from: https://app.b2brouter.net/settings/api
+   Get your API key from: https://app.b2brouter.net
 
    **Note:** The SDK defaults to the staging environment (`https://api-staging.b2brouter.net`) for safe testing.
 
