@@ -6,6 +6,22 @@ use B2BRouter\HttpClient\CurlClient;
 use B2BRouter\Exception\ApiConnectionException;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * HttpClient Test Suite
+ *
+ * This test suite uses a hybrid approach:
+ *
+ * 1. **Unit Tests** (fast, no network): Test client instantiation, configuration,
+ *    and interface compliance. These run by default with `composer test`.
+ *
+ * 2. **Integration Tests** (slow, requires network): Test actual HTTP behavior
+ *    by making real requests to httpbin.org. These are marked with @group external
+ *    and are excluded by default. Run them explicitly with `composer test:external`.
+ *
+ * Best Practice: The actual HTTP logic in services (InvoiceService, TaxReportService)
+ * is thoroughly tested using MockHttpClient, providing fast unit test coverage
+ * without network dependencies.
+ */
 class HttpClientTest extends TestCase
 {
     public function testCurlClientCreation()
@@ -25,6 +41,9 @@ class HttpClientTest extends TestCase
      *
      * Note: This test makes an actual HTTP request to httpbin.org.
      * In a production environment, you might want to mock cURL or skip this test.
+     *
+     * @group integration
+     * @group external
      */
     public function testSuccessfulRequest()
     {
@@ -54,6 +73,9 @@ class HttpClientTest extends TestCase
 
     /**
      * Test that connection errors are properly wrapped.
+     *
+     * @group integration
+     * @group external
      */
     public function testConnectionError()
     {
@@ -82,7 +104,38 @@ class HttpClientTest extends TestCase
     }
 
     /**
+     * Test retry configuration.
+     * This is a unit test that doesn't require network access.
+     */
+    public function testRetryConfiguration()
+    {
+        // Test default configuration
+        $client = new CurlClient();
+        $this->assertInstanceOf(CurlClient::class, $client);
+
+        // Test custom retry configuration
+        $clientWithRetries = new CurlClient(5, 1000);
+        $this->assertInstanceOf(CurlClient::class, $clientWithRetries);
+
+        // Test zero retries
+        $clientNoRetries = new CurlClient(0, 0);
+        $this->assertInstanceOf(CurlClient::class, $clientNoRetries);
+    }
+
+    /**
+     * Test that client interface is properly implemented.
+     */
+    public function testClientInterface()
+    {
+        $client = new CurlClient();
+        $this->assertInstanceOf(\B2BRouter\HttpClient\ClientInterface::class, $client);
+    }
+
+    /**
      * Test HTTP methods.
+     *
+     * @group integration
+     * @group external
      */
     public function testDifferentHttpMethods()
     {
@@ -129,6 +182,9 @@ class HttpClientTest extends TestCase
 
     /**
      * Test that headers are properly sent and parsed.
+     *
+     * @group integration
+     * @group external
      */
     public function testHeaderHandling()
     {
@@ -165,6 +221,9 @@ class HttpClientTest extends TestCase
 
     /**
      * Test that request body is properly sent.
+     *
+     * @group integration
+     * @group external
      */
     public function testRequestBody()
     {
@@ -199,6 +258,9 @@ class HttpClientTest extends TestCase
 
     /**
      * Test timeout handling.
+     *
+     * @group integration
+     * @group external
      */
     public function testTimeout()
     {

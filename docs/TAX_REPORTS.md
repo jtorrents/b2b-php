@@ -12,6 +12,7 @@ Guide for working with tax reports using the B2BRouter PHP SDK.
 - [Working with QR Codes](#working-with-qr-codes)
 - [Troubleshooting](#troubleshooting)
 - [API Reference](#api-reference)
+- [Examples](#examples)
 
 ## Overview
 
@@ -451,11 +452,103 @@ if ($invoice['state'] === 'new') {
 
 ### TaxReportService Methods
 
+#### Create a Tax Report
+
+Create a tax report directly (useful for Point of Sale or when not using B2BRouter invoices):
+
+> **Important QR Code Difference:**
+> - **VeriFactu**: QR code is **immediately available** in the create response - add it to your invoice right away
+> - **TicketBAI**: QR code is generated **after chaining** - you must poll the state to retrieve it
+
 ```php
-// Retrieve a single tax report
+// Create a VeriFactu tax report
+$taxReport = $client->taxReports->create($accountId, [
+    'tax_report' => [
+        'type' => 'Verifactu',
+        'invoice_date' => '2025-04-15',
+        'invoice_number' => '2025-001',
+        'description' => 'Professional consulting services',
+        'customer_party_tax_id' => 'B12345678',
+        'customer_party_country' => 'es',
+        'customer_party_name' => 'Cliente S.L.',
+        'tax_inclusive_amount' => 121.0,
+        'tax_amount' => 21.0,
+        'invoice_type_code' => 'F1',
+        'currency' => 'EUR',
+        'tax_breakdowns' => [
+            [
+                'name' => 'IVA',
+                'category' => 'S',
+                'non_exemption_code' => 'S1',
+                'percent' => 21.0,
+                'taxable_base' => 100.0,
+                'tax_amount' => 21.0,
+                'special_regime_key' => '01'
+            ]
+        ]
+    ]
+]);
+
+// Create a TicketBAI tax report (includes tax_report_lines)
+$taxReport = $client->taxReports->create($accountId, [
+    'tax_report' => [
+        'type' => 'TicketBai',
+        'invoice_date' => '2025-04-15',
+        'invoice_number' => '2025-001',
+        'description' => 'Sale of products',
+        'customer_party_tax_id' => 'B12345678',
+        'customer_party_country' => 'es',
+        'customer_party_postalcode' => '48010',
+        'customer_party_address' => 'Calle Falsa 123',
+        'customer_party_name' => 'Cliente S.L.',
+        'tax_inclusive_amount' => 121.0,
+        'tax_amount' => 21.0,
+        'invoice_type_code' => 'F1',
+        'currency' => 'EUR',
+        'tax_report_lines' => [
+            [
+                'quantity' => 1.0,
+                'description' => 'Product A',
+                'price' => 100.0,
+                'tax_inclusive_amount' => 121.0,
+                'tax_exclusive_amount' => 100.0,
+                'tax_amount' => 21.0
+            ]
+        ],
+        'tax_breakdowns' => [
+            [
+                'category' => 'S',
+                'non_exempt' => true,
+                'non_exemption_code' => 'S1',
+                'percent' => 21.0,
+                'taxable_base' => 100.0,
+                'tax_amount' => 21.0
+            ]
+        ]
+    ]
+]);
+```
+
+#### Retrieve a Tax Report
+
+Retrieve a single tax report by ID:
+
+```php
 $taxReport = $client->taxReports->retrieve($taxReportId);
 
-// List tax reports with filters
+echo "State: {$taxReport['state']}\n";
+echo "Invoice: {$taxReport['invoice_number']}\n";
+
+if (isset($taxReport['qr'])) {
+    echo "QR code available\n";
+}
+```
+
+#### List Tax Reports
+
+List tax reports with pagination and filters:
+
+```php
 $taxReports = $client->taxReports->all($accountId, [
     'limit' => 50,
     'offset' => 0,
@@ -463,6 +556,84 @@ $taxReports = $client->taxReports->all($accountId, [
     'sent_at_from' => '2025-01-01',       // Filter by sent date
     'updated_at_from' => '2025-01-01',    // Filter by update date
 ]);
+
+echo "Found {$taxReports->count()} tax reports\n";
+echo "Total: {$taxReports->getTotal()}\n";
+
+foreach ($taxReports as $report) {
+    echo "{$report['label']}: {$report['state']}\n";
+}
+
+// Pagination
+if ($taxReports->hasMore()) {
+    $nextPage = $client->taxReports->all($accountId, [
+        'limit' => 50,
+        'offset' => $taxReports->getOffset() + $taxReports->getLimit()
+    ]);
+}
+```
+
+#### Download Tax Report XML
+
+Download the XML representation of the tax report:
+
+```php
+$xml = $client->taxReports->download($taxReportId);
+
+// Save to file
+file_put_contents("tax_report_{$taxReportId}.xml", $xml);
+
+// Note: XML is only available after the tax report has been chained
+```
+
+#### Update/Correct a Tax Report
+
+Create a correction (subsanación) for VeriFactu tax reports:
+
+```php
+// Note: This is for VeriFactu corrections
+// TicketBAI corrections (Zuzendu) are not currently supported
+
+$correctedReport = $client->taxReports->update($taxReportId, [
+    'tax_report' => [
+        'description' => 'CORRECTED: Updated description',
+        'tax_inclusive_amount' => 133.1,
+        'tax_amount' => 23.1,
+        'tax_breakdowns' => [
+            [
+                'name' => 'IVA',
+                'category' => 'S',
+                'non_exemption_code' => 'S1',
+                'percent' => 21.0,
+                'taxable_base' => 110.0,
+                'tax_amount' => 23.1,
+                'special_regime_key' => '01'
+            ]
+        ]
+    ]
+]);
+
+echo "Correction ID: {$correctedReport['id']}\n";
+echo "Correction flag: " . ($correctedReport['correction'] ? 'Yes' : 'No') . "\n";
+```
+
+#### Delete/Annulate a Tax Report
+
+Create an annullation (anulación) for both VeriFactu and TicketBAI:
+
+```php
+$annullation = $client->taxReports->delete($taxReportId);
+
+echo "Annullation ID: {$annullation['id']}\n";
+echo "Annullation flag: " . ($annullation['annullation'] ? 'Yes' : 'No') . "\n";
+echo "State: {$annullation['state']}\n";
+
+// Monitor the annullation state
+$finalStates = ['annulled', 'error'];
+do {
+    sleep(2);
+    $status = $client->taxReports->retrieve($annullation['id']);
+} while (!in_array($status['state'], $finalStates));
 ```
 
 ### Tax Report Response Fields
@@ -494,3 +665,90 @@ Common fields in tax report responses:
 - [B2Brouter Verifactu Guide](https://developer.b2brouter.net/v2025-10-13/docs/verifactu) - Full B2Brouter Verifactu Guide.
 - [B2BRouter API Reference](https://developer.b2brouter.net/v2025-10-13/reference) - Complete API documentation
 - [Tax Report Settings API](https://developer.b2brouter.net/v2025-10-13/reference/tax_report_settings_guide) - Configuration reference
+
+## Examples
+
+The SDK includes comprehensive examples demonstrating all tax report operations:
+
+### Complete CRUD Workflow
+
+**[examples/tax_reports.php](../examples/tax_reports.php)** - Complete example showing all CRUD operations for both VeriFactu and TicketBAI:
+- Create VeriFactu tax report
+- Create TicketBAI tax report
+- Retrieve and monitor tax report state
+- List tax reports with filters
+- Download XML
+- Update/correct tax reports (VeriFactu)
+- Delete/annulate tax reports
+
+### VeriFactu-Specific Example
+
+**[examples/verifactu_tax_report.php](../examples/verifactu_tax_report.php)** - Complete VeriFactu workflow:
+- Create VeriFactu tax report with tax breakdowns
+- Monitor state changes
+- Download XML representation
+- Create corrections (subsanación)
+- Create annullations (anulación)
+
+Key VeriFactu characteristics:
+- Uses tax breakdowns (aggregated tax totals)
+- Supports corrections via `update()`
+- Supports annullations via `delete()`
+- **QR code is immediately available** in the create response - you can add it to your invoice right away
+- State monitoring is still required to confirm submission to AEAT
+
+### TicketBAI-Specific Example
+
+**[examples/ticketbai_tax_report.php](../examples/ticketbai_tax_report.php)** - Complete TicketBAI workflow:
+- Create TicketBAI tax report with individual lines
+- Monitor state changes
+- Download XML representation
+- Create annullations
+- Complex example with multiple lines and discounts
+
+Key TicketBAI characteristics:
+- Uses tax_report_lines (individual invoice lines)
+- Supports annullations via `delete()`
+- Corrections (Zuzendu) NOT currently supported
+- **QR code is generated AFTER chaining** - you must poll the state to retrieve it before adding it to your invoice
+- Basque Country tax compliance
+
+### List and Filter Tax Reports
+
+**[examples/list_tax_reports.php](../examples/list_tax_reports.php)** - Comprehensive listing and filtering:
+- Basic pagination
+- Filter by date range
+- Filter by invoice ID
+- Iterate through all tax reports
+- Analyze reports by state and type
+
+### Running the Examples
+
+1. **Setup environment:**
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your B2B_API_KEY and B2B_ACCOUNT_ID
+   # The SDK defaults to staging - uncomment B2B_API_BASE for production
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   composer install
+   ```
+
+3. **Run examples:**
+   ```bash
+   # Complete CRUD workflow
+   php examples/tax_reports.php
+
+   # VeriFactu-specific example
+   php examples/verifactu_tax_report.php
+
+   # TicketBAI-specific example
+   php examples/ticketbai_tax_report.php
+
+   # List and filter
+   php examples/list_tax_reports.php
+   ```
+
+All examples automatically load credentials from your `.env` file.

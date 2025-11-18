@@ -1,11 +1,15 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/bootstrap.php';
 
 use B2BRouter\B2BRouterClient;
 
-$client = new B2BRouterClient($_ENV['B2B_API_KEY'] ?? 'your-api-key');
-$accountId = $_ENV['B2B_ACCOUNT_ID'] ?? 'your-account-id';
+$client = new B2BRouterClient(env('B2B_API_KEY'), [
+    'api_version' => env('B2B_API_VERSION', '2025-10-13'),
+    'api_base' => env('B2B_API_BASE'),
+]);
+
+$accountId = env('B2B_ACCOUNT_ID');
 
 try {
     $offset = 0;
@@ -46,7 +50,7 @@ try {
 
     foreach ($allInvoices as $invoice) {
         $currency = $invoice['currency'] ?? 'EUR';
-        $amount = $invoice['total_amount'] ?? 0;
+        $amount = $invoice['total'] ?? 0;
 
         if (!isset($currencies[$currency])) {
             $currencies[$currency] = 0;

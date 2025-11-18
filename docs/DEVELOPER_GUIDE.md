@@ -321,23 +321,50 @@ tests/
 
 ## Working with Examples
 
-All examples are in the `examples/` directory.
+All examples are in the `examples/` directory and use environment variables for configuration.
+
+### Setup Environment
+
+1. **Copy the environment template:**
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Edit `.env` and add your credentials:**
+   ```env
+   B2B_API_KEY=your-api-key-here
+   B2B_ACCOUNT_ID=your-account-id
+   # B2B_API_BASE=https://api.b2brouter.net  # Uncomment for production (defaults to staging)
+   ```
+
+   Get your API key from: https://app.b2brouter.net/settings/api
+
+   **Note:** The SDK defaults to the staging environment (`https://api-staging.b2brouter.net`) for safe testing.
+
+3. **Install dependencies:**
+   ```bash
+   composer install
+   ```
 
 ### Run Examples
 
 ```bash
-# Set environment variables
-export B2B_API_KEY="your_api_key"
-export B2B_ACCOUNT_ID="your_account_id"
-
-# Run examples
+# Invoice examples
 php examples/invoices.php
 php examples/create_simple_invoice.php
 php examples/list_invoices.php
+
+# Tax report examples
+php examples/tax_reports.php
+php examples/verifactu_tax_report.php
+php examples/ticketbai_tax_report.php
 ```
+
+All examples automatically load credentials from `.env` via the `examples/bootstrap.php` helper.
 
 ### Available Examples
 
+**Invoice Examples:**
 - `invoices.php` - Complete CRUD operations demo
 - `create_simple_invoice.php` - Simple invoice creation
 - `create_detailed_invoice.php` - Multi-line invoice
@@ -345,6 +372,13 @@ php examples/list_invoices.php
 - `paginate_all_invoices.php` - Pagination example
 - `update_invoice.php` - Update existing invoice
 - `invoice_workflow.php` - Complete workflow from creation to sending
+- `invoicing_in_spain_with_verifactu.php` - Spanish Verifactu compliance
+
+**Tax Report Examples:**
+- `tax_reports.php` - Complete CRUD operations for VeriFactu
+- `verifactu_tax_report.php` - VeriFactu-specific workflow
+- `ticketbai_tax_report.php` - TicketBAI-specific workflow
+- `list_tax_reports.php` - Listing and filtering
 
 ---
 

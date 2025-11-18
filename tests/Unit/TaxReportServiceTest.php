@@ -111,4 +111,166 @@ class TaxReportServiceTest extends TestCase
         $request = $mockHttp->getLastRequest();
         $this->assertStringContainsString('include=invoice', $request['url']);
     }
+
+    public function testCreateTaxReport()
+    {
+        [$client, $mockHttp] = $this->createTestClient();
+
+        $mockHttp->addResponse($this->mockResponse([
+            'tax_report' => [
+                'id' => 'tr_new123',
+                'type' => 'Verifactu',
+                'state' => 'processing',
+                'invoice_number' => '2025-001',
+                'invoice_date' => '2025-04-03',
+                'customer_party_name' => 'Test Customer S.L.',
+                'tax_inclusive_amount' => 121.0,
+                'qr' => 'base64encodedqrcode...'
+            ]
+        ]));
+
+        $result = $client->taxReports->create('test-account', [
+            'tax_report' => [
+                'type' => 'Verifactu',
+                'invoice_date' => '2025-04-03',
+                'invoice_number' => '2025-001',
+                'description' => 'Test invoice',
+                'customer_party_tax_id' => 'B12345678',
+                'customer_party_country' => 'es',
+                'customer_party_name' => 'Test Customer S.L.',
+                'tax_inclusive_amount' => 121.0,
+                'tax_amount' => 21.0,
+                'invoice_type_code' => 'F1',
+                'currency' => 'EUR',
+                'tax_breakdowns' => [
+                    [
+                        'name' => 'IVA',
+                        'category' => 'S',
+                        'non_exemption_code' => 'S1',
+                        'percent' => 21.0,
+                        'taxable_base' => 100.0,
+                        'tax_amount' => 21.0,
+                        'special_regime_key' => '01'
+                    ]
+                ]
+            ]
+        ]);
+
+        $this->assertEquals('tr_new123', $result['id']);
+        $this->assertEquals('Verifactu', $result['type']);
+        $this->assertEquals('processing', $result['state']);
+        $this->assertEquals('2025-001', $result['invoice_number']);
+
+        // Verify request
+        $request = $mockHttp->getLastRequest();
+        $this->assertEquals('POST', $request['method']);
+        $this->assertStringContainsString('/accounts/test-account/tax_reports', $request['url']);
+        $this->assertArrayHasKey('body', $request);
+    }
+
+    public function testCreateTaxReportRequiresTaxReportParameter()
+    {
+        [$client, $mockHttp] = $this->createTestClient();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The "tax_report" parameter is required');
+
+        $client->taxReports->create('test-account', [
+            'invoice_number' => '2025-001'
+        ]);
+    }
+
+    public function testDownloadTaxReport()
+    {
+        [$client, $mockHttp] = $this->createTestClient();
+
+        $xmlContent = '<?xml version="1.0" encoding="UTF-8"?><RegistroAlta><Cabecera>...</Cabecera></RegistroAlta>';
+
+        // Create a response array directly (not using mockResponse helper which encodes to JSON)
+        $mockHttp->addResponse([
+            'body' => $xmlContent,
+            'status' => 200,
+            'headers' => ['Content-Type' => 'application/xml']
+        ]);
+
+        $result = $client->taxReports->download('tr_12345');
+
+        $this->assertStringContainsString('<?xml version="1.0"', $result);
+        $this->assertStringContainsString('RegistroAlta', $result);
+
+        // Verify request
+        $request = $mockHttp->getLastRequest();
+        $this->assertEquals('GET', $request['method']);
+        $this->assertStringContainsString('/tax_reports/tr_12345/download', $request['url']);
+    }
+
+    public function testUpdateTaxReport()
+    {
+        [$client, $mockHttp] = $this->createTestClient();
+
+        $mockHttp->addResponse($this->mockResponse([
+            'tax_report' => [
+                'id' => 'tr_12345',
+                'type' => 'Verifactu',
+                'state' => 'processing',
+                'invoice_number' => '2025-001-CORRECTED',
+                'correction' => true
+            ]
+        ]));
+
+        $result = $client->taxReports->update('tr_12345', [
+            'tax_report' => [
+                'invoice_number' => '2025-001-CORRECTED',
+                'description' => 'Corrected description',
+                'tax_inclusive_amount' => 133.1
+            ]
+        ]);
+
+        $this->assertEquals('tr_12345', $result['id']);
+        $this->assertEquals('2025-001-CORRECTED', $result['invoice_number']);
+        $this->assertTrue($result['correction']);
+
+        // Verify request
+        $request = $mockHttp->getLastRequest();
+        $this->assertEquals('PATCH', $request['method']);
+        $this->assertStringContainsString('/tax_reports/tr_12345', $request['url']);
+    }
+
+    public function testUpdateTaxReportRequiresTaxReportParameter()
+    {
+        [$client, $mockHttp] = $this->createTestClient();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The "tax_report" parameter is required');
+
+        $client->taxReports->update('tr_12345', [
+            'invoice_number' => '2025-001'
+        ]);
+    }
+
+    public function testDeleteTaxReport()
+    {
+        [$client, $mockHttp] = $this->createTestClient();
+
+        $mockHttp->addResponse($this->mockResponse([
+            'tax_report' => [
+                'id' => 'tr_annul123',
+                'type' => 'Verifactu',
+                'state' => 'processing',
+                'annullation' => true,
+                'original_tax_report_id' => 'tr_12345'
+            ]
+        ]));
+
+        $result = $client->taxReports->delete('tr_12345');
+
+        $this->assertEquals('tr_annul123', $result['id']);
+        $this->assertTrue($result['annullation']);
+        $this->assertEquals('tr_12345', $result['original_tax_report_id']);
+
+        // Verify request
+        $request = $mockHttp->getLastRequest();
+        $this->assertEquals('DELETE', $request['method']);
+        $this->assertStringContainsString('/tax_reports/tr_12345', $request['url']);
+    }
 }

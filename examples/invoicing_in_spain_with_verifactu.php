@@ -1,9 +1,12 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/bootstrap.php';
 
 use B2BRouter\B2BRouterClient;
 use B2BRouter\Exception\ApiErrorException;
+
+// Check required environment variables
+checkRequiredEnv();
 
 /**
  * Example: Invoicing in Spain with Verifactu (Tax Report)
@@ -20,8 +23,12 @@ use B2BRouter\Exception\ApiErrorException;
  */
 
 // Initialize client
-$client = new B2BRouterClient($_ENV['B2B_API_KEY'] ?? 'your-api-key');
-$accountId = $_ENV['B2B_ACCOUNT_ID'] ?? 'your-account-id';
+$client = new B2BRouterClient(env('B2B_API_KEY'), [
+    'api_version' => env('B2B_API_VERSION', '2025-10-13'),
+    'api_base' => env('B2B_API_BASE'),
+]);
+
+$accountId = env('B2B_ACCOUNT_ID');
 
 try {
     echo "=== Spanish Invoice with Verifactu Example ===\n\n";
@@ -40,7 +47,7 @@ try {
             'language' => 'es',
             'contact' => [
                 'name' => 'Cliente Ejemplo SA',
-                'tin_value' => 'ESB12345678',
+                'tin_value' => 'ESP9109010J',
                 'country' => 'ES',
                 'address' => 'Calle Gran Vía, 123',
                 'city' => 'Madrid',

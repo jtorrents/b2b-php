@@ -1,12 +1,19 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/bootstrap.php';
 
 use B2BRouter\B2BRouterClient;
 use B2BRouter\Exception\ApiErrorException;
 
-$client = new B2BRouterClient($_ENV['B2B_API_KEY'] ?? 'your-api-key');
-$accountId = $_ENV['B2B_ACCOUNT_ID'] ?? 'your-account-id';
+// Check required environment variables
+checkRequiredEnv();
+
+$client = new B2BRouterClient(env('B2B_API_KEY'), [
+    'api_version' => env('B2B_API_VERSION', '2025-10-13'),
+    'api_base' => env('B2B_API_BASE'),
+]);
+
+$accountId = env('B2B_ACCOUNT_ID');
 
 function step($message) {
     echo "\n" . str_repeat('=', 60) . "\n";
@@ -25,7 +32,7 @@ try {
             'currency' => 'EUR',
             'contact' => [
                 'name' => 'Demo Customer',
-                'tin_value' => 'ESB11111111',
+                'tin_value' => 'ESP9109010J',
                 'country' => 'ES',
                 'email' => 'demo@example.com',
             ],
